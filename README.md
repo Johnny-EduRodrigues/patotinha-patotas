@@ -39,7 +39,6 @@ Tenha instalado:
 Entre na pasta do projeto:
 
 ```bash
-cd patotinha
 cd johnny
 ```
 
