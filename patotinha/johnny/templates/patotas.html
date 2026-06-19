@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Patotinha</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="dashboard-body">
+
+<div class="dashboard-shell">
+    <aside class="sidebar">
+        <a href="{{ url_for('home') }}" class="brand">
+            <span class="brand-mark">P</span>
+            <span>Patotinha</span>
+        </a>
+
+        <nav class="sidebar-nav" aria-label="Menu principal">
+            <a href="{{ url_for('patotas') }}" class="nav-item ativo">
+                <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('patotas') }}" class="nav-item">
+                <span>Patotas</span>
+            </a>
+            <a href="{{ url_for('explorar') }}" class="nav-item">
+                <span>Entrar com codigo</span>
+            </a>
+            <a href="{{ url_for('logout') }}" class="nav-item sair">
+                <span>Sair</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-user">
+            <span class="avatar">{{ usuario.usuario[0]|upper }}</span>
+            <div>
+                <strong>{{ usuario.usuario }}</strong>
+                <small>Organizador</small>
+            </div>
+        </div>
+    </aside>
+
+    <main class="dashboard-main">
+        <section class="dashboard-topbar">
+            <div>
+                <span class="eyebrow">Painel de controle</span>
+                <h1>Patotas</h1>
+                <p>Gerencie os grupos que voce organiza e acompanha em um so lugar.</p>
+            </div>
+
+            <form method="get" action="{{ url_for('patotas') }}" class="search-form">
+                <input type="search" name="q" value="{{ busca }}" placeholder="Buscar patota">
+                <button type="submit">Buscar</button>
+            </form>
+        </section>
+
+        {% with mensagens = get_flashed_messages(with_categories=true) %}
+            {% if mensagens %}
+                <div class="dashboard-mensagens">
+                    {% for categoria, mensagem in mensagens %}
+                        <p class="mensagem {{ categoria }}">{{ mensagem }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <section class="metric-grid">
+            <article class="metric-card destaque">
+                <span>Total de patotas</span>
+                <strong>{{ total_patotas }}</strong>
+                <small>Grupos criados por voce</small>
+            </article>
+            <article class="metric-card">
+                <span>Participando</span>
+                <strong>{{ total_participando }}</strong>
+                <small>Patotas criadas por outros usuarios</small>
+            </article>
+            <article class="metric-card">
+                <span>Status da conta</span>
+                <strong>Ativa</strong>
+                <small>Acesso privado com login</small>
+            </article>
+        </section>
+
+        <section class="dashboard-grid">
+            <div class="content-stack">
+                <section class="workspace-panel">
+                    <div class="section-heading">
+                        <div>
+                            <span class="eyebrow">Biblioteca</span>
+                            <h2>Patotas que voce criou</h2>
+                        </div>
+                        {% if busca %}
+                            <a href="{{ url_for('patotas') }}" class="limpar-busca">Limpar busca</a>
+                        {% endif %}
+                    </div>
+
+                    <div class="patota-list">
+                        {% if patotas %}
+                            {% for patota in patotas %}
+                                <article class="patota-row">
+                                    <div class="patota-icon">{{ patota.nome[0]|upper }}</div>
+                                    <div class="patota-info">
+                                        <h3>{{ patota.nome }}</h3>
+                                        <p>{{ patota.descricao }}</p>
+                                        <div class="patota-meta">
+                                            <span class="invite-code">Codigo: {{ patota.codigo_convite }}</span>
+                                            <span class="schedule-pill">
+                                                {{ patota.quando_acontece or "Rotina a combinar" }}
+                                            </span>
+                                            {% set presencas = presencas_por_patota[patota.id] %}
+                                            <span class="presence-pill">
+                                                {{ presencas.vai }}/{{ presencas.total }} vao
+                                            </span>
+                                            <span class="presence-pill declined">
+                                                {{ presencas.nao_vai }} nao vao
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="patota-actions">
+                                        <a href="{{ url_for('painel_patota', patota_id=patota.id) }}" class="btn-small btn-link-small">Painel</a>
+                                    </div>
+                                </article>
+                            {% endfor %}
+                        {% else %}
+                            <div class="empty-state">
+                                <h3>Nenhuma patota encontrada</h3>
+                                <p>{% if busca %}Tente buscar por outro termo ou limpe a busca.{% else %}Crie sua primeira patota usando o painel ao lado.{% endif %}</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </section>
+
+                <section class="workspace-panel">
+                    <div class="section-heading">
+                        <div>
+                            <span class="eyebrow">Participacao</span>
+                            <h2>Patotas em que voce entrou</h2>
+                        </div>
+                        <a href="{{ url_for('explorar') }}" class="limpar-busca">Entrar com codigo</a>
+                    </div>
+
+                    <div class="patota-list">
+                        {% if participacoes %}
+                            {% for participacao in participacoes %}
+                                {% set patota = participacao.patota %}
+                                <article class="patota-row">
+                                    <div class="patota-icon membro">{{ patota.nome[0]|upper }}</div>
+                                    <div class="patota-info">
+                                        <h3>{{ patota.nome }}</h3>
+                                        <p>{{ patota.descricao }}</p>
+                                        <div class="patota-meta">
+                                            <span class="schedule-pill">
+                                                {{ patota.quando_acontece or "Rotina a combinar" }}
+                                            </span>
+                                            {% if participacao.resposta_presenca == "vai" or participacao.presenca_confirmada %}
+                                                <span class="presence-pill confirmed">Vou</span>
+                                            {% elif participacao.resposta_presenca == "nao_vai" %}
+                                                <span class="presence-pill declined">Nao vou</span>
+                                            {% else %}
+                                                <span class="presence-pill pending">Aguardando confirmacao</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="patota-actions">
+                                        <form method="post" action="{{ url_for('atualizar_presenca', patota_id=patota.id) }}" class="inline-form">
+                                            <input type="hidden" name="presenca" value="vai">
+                                            <button type="submit" class="btn-small">Vou</button>
+                                        </form>
+                                        <form method="post" action="{{ url_for('atualizar_presenca', patota_id=patota.id) }}" class="inline-form">
+                                            <input type="hidden" name="presenca" value="nao_vai">
+                                            <button type="submit" class="btn-small btn-danger-soft">Nao vou</button>
+                                        </form>
+                                        <form method="post" action="{{ url_for('atualizar_presenca', patota_id=patota.id) }}" class="inline-form">
+                                            <input type="hidden" name="presenca" value="sem_resposta">
+                                            <button type="submit" class="btn-small btn-muted">Limpar</button>
+                                        </form>
+                                        <a href="{{ url_for('painel_patota', patota_id=patota.id) }}" class="btn-small btn-link-small">Painel</a>
+                                        <form method="post" action="{{ url_for('sair_patota', patota_id=patota.id) }}" class="inline-form">
+                                            <button type="submit" class="btn-small btn-muted">Sair</button>
+                                        </form>
+                                    </div>
+                                </article>
+                            {% endfor %}
+                        {% else %}
+                            <div class="empty-state">
+                                <h3>Voce ainda nao entrou em nenhuma patota</h3>
+                                <p>Use a area Entrar com codigo quando alguem compartilhar um convite com voce.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </section>
+            </div>
+
+            <aside class="create-panel">
+                <div class="section-heading">
+                    <div>
+                        <span class="eyebrow">Criacao rapida</span>
+                        <h2>Nova patota</h2>
+                    </div>
+                </div>
+
+                <form method="post" class="form-patota dashboard-form">
+                    {{ form.hidden_tag() }}
+
+                    {{ form.nome.label }}
+                    {{ form.nome(placeholder="Ex: Turma do sabado") }}
+                    {% for erro in form.nome.errors %}
+                        <span class="erro-form">{{ erro }}</span>
+                    {% endfor %}
+
+                    {{ form.quando_acontece.label }}
+                    {{ form.quando_acontece(placeholder="Ex: Toda quarta as 19h") }}
+                    {% for erro in form.quando_acontece.errors %}
+                        <span class="erro-form">{{ erro }}</span>
+                    {% endfor %}
+
+                    {{ form.descricao.label }}
+                    {{ form.descricao(rows=5, placeholder="Descreva o objetivo da patota") }}
+                    {% for erro in form.descricao.errors %}
+                        <span class="erro-form">{{ erro }}</span>
+                    {% endfor %}
+
+                    {{ form.submit() }}
+                </form>
+            </aside>
+        </section>
+    </main>
+</div>
+
+</body>
+</html>

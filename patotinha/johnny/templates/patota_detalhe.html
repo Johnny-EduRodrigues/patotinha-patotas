@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ patota.nome }} - Patotinha</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="dashboard-body">
+
+<div class="dashboard-shell">
+    <aside class="sidebar">
+        <a href="{{ url_for('home') }}" class="brand">
+            <span class="brand-mark">P</span>
+            <span>Patotinha</span>
+        </a>
+
+        <nav class="sidebar-nav" aria-label="Menu principal">
+            <a href="{{ url_for('patotas') }}" class="nav-item">
+                <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('explorar') }}" class="nav-item">
+                <span>Entrar com codigo</span>
+            </a>
+            <a href="{{ url_for('logout') }}" class="nav-item sair">
+                <span>Sair</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-user">
+            <span class="avatar">{{ usuario.usuario[0]|upper }}</span>
+            <div>
+                <strong>{{ usuario.usuario }}</strong>
+                <small>{% if eh_dono %}Organizador{% else %}Membro{% endif %}</small>
+            </div>
+        </div>
+    </aside>
+
+    <main class="dashboard-main">
+        <section class="dashboard-topbar">
+            <div>
+                <span class="eyebrow">Painel da patota</span>
+                <h1>{{ patota.nome }}</h1>
+                <p>{{ patota.descricao }}</p>
+                <div class="patota-meta">
+                    <span class="schedule-pill">{{ patota.quando_acontece or "Rotina a combinar" }}</span>
+                    {% if eh_dono %}
+                        <span class="invite-code">Codigo: {{ patota.codigo_convite }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <a href="{{ url_for('patotas') }}" class="btn-small btn-link-small">Voltar</a>
+        </section>
+
+        {% with mensagens = get_flashed_messages(with_categories=true) %}
+            {% if mensagens %}
+                <div class="dashboard-mensagens">
+                    {% for categoria, mensagem in mensagens %}
+                        <p class="mensagem {{ categoria }}">{{ mensagem }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <section class="metric-grid">
+            <article class="metric-card destaque">
+                <span>Vao</span>
+                <strong>{{ resumo.vai }}</strong>
+                <small>Confirmaram presenca</small>
+            </article>
+            <article class="metric-card">
+                <span>Nao vao</span>
+                <strong>{{ resumo.nao_vai }}</strong>
+                <small>Marcaram ausencia</small>
+            </article>
+            <article class="metric-card">
+                <span>Sem resposta</span>
+                <strong>{{ resumo.sem_resposta }}</strong>
+                <small>Ainda nao responderam</small>
+            </article>
+        </section>
+
+        <section class="workspace-panel">
+            <div class="section-heading">
+                <div>
+                    <span class="eyebrow">Membros</span>
+                    <h2>Lista de presenca</h2>
+                </div>
+                <span class="status-pill">{{ resumo.total }} membros</span>
+            </div>
+
+            <div class="member-table">
+                {% if membros %}
+                    {% for membro in membros %}
+                        {% set status = status_presenca(membro) %}
+                        <article class="member-row">
+                            <div class="member-person">
+                                <span class="avatar small">{{ membro.usuario.usuario[0]|upper }}</span>
+                                <div>
+                                    <strong>{{ membro.usuario.usuario }}</strong>
+                                    <small>{{ membro.usuario.email }}</small>
+                                </div>
+                            </div>
+
+                            {% if status == "vai" %}
+                                <span class="presence-pill confirmed">Vai</span>
+                            {% elif status == "nao_vai" %}
+                                <span class="presence-pill declined">Nao vai</span>
+                            {% else %}
+                                <span class="presence-pill pending">Sem resposta</span>
+                            {% endif %}
+                        </article>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <h3>Nenhum membro entrou ainda</h3>
+                        <p>Compartilhe o codigo da patota para receber respostas de presenca.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+    </main>
+</div>
+
+</body>
+</html>

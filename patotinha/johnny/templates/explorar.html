@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrar com Codigo - Patotinha</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="dashboard-body">
+
+<div class="dashboard-shell">
+    <aside class="sidebar">
+        <a href="{{ url_for('home') }}" class="brand">
+            <span class="brand-mark">P</span>
+            <span>Patotinha</span>
+        </a>
+
+        <nav class="sidebar-nav" aria-label="Menu principal">
+            <a href="{{ url_for('patotas') }}" class="nav-item">
+                <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('patotas') }}" class="nav-item">
+                <span>Patotas</span>
+            </a>
+            <a href="{{ url_for('explorar') }}" class="nav-item ativo">
+                <span>Entrar com codigo</span>
+            </a>
+            <a href="{{ url_for('logout') }}" class="nav-item sair">
+                <span>Sair</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-user">
+            <span class="avatar">{{ usuario.usuario[0]|upper }}</span>
+            <div>
+                <strong>{{ usuario.usuario }}</strong>
+                <small>Membro</small>
+            </div>
+        </div>
+    </aside>
+
+    <main class="dashboard-main">
+        <section class="dashboard-topbar">
+            <div>
+                <span class="eyebrow">Convite privado</span>
+                <h1>Entrar em uma patota</h1>
+                <p>Use o codigo enviado pelo dono da patota para participar do grupo.</p>
+            </div>
+        </section>
+
+        {% with mensagens = get_flashed_messages(with_categories=true) %}
+            {% if mensagens %}
+                <div class="dashboard-mensagens">
+                    {% for categoria, mensagem in mensagens %}
+                        <p class="mensagem {{ categoria }}">{{ mensagem }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <section class="invite-layout">
+            <div class="workspace-panel invite-panel">
+                <div class="section-heading">
+                    <div>
+                        <span class="eyebrow">Acesso</span>
+                        <h2>Codigo de convite</h2>
+                    </div>
+                </div>
+
+                <form method="post" class="dashboard-form invite-form">
+                    {{ form.hidden_tag() }}
+
+                    {{ form.codigo.label }}
+                    {{ form.codigo(placeholder="Ex: PATO-8F3K2") }}
+                    {% for erro in form.codigo.errors %}
+                        <span class="erro-form">{{ erro }}</span>
+                    {% endfor %}
+
+                    {{ form.submit() }}
+                </form>
+            </div>
+
+            <aside class="create-panel invite-help">
+                <span class="eyebrow">Como funciona</span>
+                <h2>Entrada controlada</h2>
+                <p>As patotas nao aparecem publicamente para qualquer pessoa entrar. O dono compartilha o codigo apenas com quem deve participar.</p>
+            </aside>
+        </section>
+    </main>
+</div>
+
+</body>
+</html>

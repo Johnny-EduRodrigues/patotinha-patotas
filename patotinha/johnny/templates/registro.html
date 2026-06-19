@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro - Patotinha</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header>
+    <a href="{{ url_for('home') }}"><h1>Patotinha</h1></a>
+</header>
+
+<main>
+    <div class="login-box">
+
+        <div class="overlay"></div>
+
+        <h2>Cadastro</h2>
+
+        <p class="descricao">
+            Crie sua conta para montar sua patota e organizar eventos com seus amigos.
+        </p>
+
+        {% with mensagens = get_flashed_messages(with_categories=true) %}
+            {% if mensagens %}
+                <div class="mensagens">
+                    {% for categoria, mensagem in mensagens %}
+                        <p class="mensagem {{ categoria }}">{{ mensagem }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <form method="post">
+
+            {{ form.hidden_tag() }}
+
+            {{ form.usuario.label }}
+            {{ form.usuario() }}
+            {% for erro in form.usuario.errors %}
+                <span class="erro-form">{{ erro }}</span>
+            {% endfor %}
+
+            {{ form.email.label }}
+            {{ form.email() }}
+            {% for erro in form.email.errors %}
+                <span class="erro-form">{{ erro }}</span>
+            {% endfor %}
+
+            {{ form.senha.label }}
+            {{ form.senha() }}
+            {% for erro in form.senha.errors %}
+                <span class="erro-form">{{ erro }}</span>
+            {% endfor %}
+
+            {{ form.confirmar_senha.label }}
+            {{ form.confirmar_senha() }}
+            {% for erro in form.confirmar_senha.errors %}
+                <span class="erro-form">{{ erro }}</span>
+            {% endfor %}
+
+            {{ form.submit() }}
+
+        </form>
+
+        <p class="login-link">
+            Ja possui uma conta?
+            <a href="{{ url_for('login') }}">Entrar</a>
+        </p>
+
+    </div>
+</main>
+
+</body>
+</html>

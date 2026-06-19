@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patotinha</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header>
+    <h1>PATOTINHA</h1>
+</header>
+
+<main>
+    <div class="login-box">
+
+        <h2>Organize sua turma</h2>
+
+        <p class="descricao">
+            Crie patotas, convide amigos e acompanhe quem vai participar dos seus eventos.
+        </p>
+
+        {% if usuario %}
+            <a href="{{ url_for('patotas') }}" class="btn-link">
+                Minhas patotas
+            </a>
+            <a href="{{ url_for('logout') }}" class="btn-link btn-secundario">
+                Sair
+            </a>
+        {% else %}
+            <a href="{{ url_for('registro') }}" class="btn-link">
+                Criar conta
+            </a>
+            <a href="{{ url_for('login') }}" class="btn-link btn-secundario">
+                Entrar
+            </a>
+        {% endif %}
+
+    </div>
+</main>
+
+</body>
+</html>
